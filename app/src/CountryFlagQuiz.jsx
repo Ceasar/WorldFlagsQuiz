@@ -63,13 +63,11 @@ function QuizQuestion(props) {
       <div className="quiz-question">{props.question}</div>
       <ListGroup className="quiz-answers">
         {props.choices.map(choice => {
-          const variant = buttonStates[choice.value];
-          console.log(variant);
           return (
             <ListGroup.Item
               action={!isChoiceMade}
               key={choice.key}
-              variant={variant}
+              variant={buttonStates[choice.value]}
               value={choice.value}
               onClick={onClick}
             >{choice.value}</ListGroup.Item>
