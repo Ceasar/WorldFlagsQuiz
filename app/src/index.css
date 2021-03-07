@@ -11,18 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.App {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-}
-
-.quiz-question {
-    font-size: 10rem;
-}
-
-.quiz-continue {
-    margin-top: 1em;
-}

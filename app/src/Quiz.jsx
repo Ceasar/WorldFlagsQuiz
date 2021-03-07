@@ -7,12 +7,11 @@ function QuizQuestion({
   selectedChoice,
   stem,
   onClickAnswer,
-  onClickNext
 }) {
   const isAnswered = selectedChoice !== null;
   return (
-    <div className="quiz">
-      <div className="quiz-question">{stem}</div>
+    <div className="quiz-question">
+      <div className="quiz-question-stem">{stem}</div>
       <ListGroup className="quiz-answers">
         {choices.map(choice => {
           let variant = null;
@@ -33,22 +32,25 @@ function QuizQuestion({
           );
         })}
       </ListGroup>
-      <div className="quiz-continue">
-        <Button disabled={!isAnswered} onClick={onClickNext} variant="primary">Next</Button>
-      </div>
     </div>
   );
 }
 
 function Quiz({
   currentScore,
+  selectedChoice,
   maxScore,
+  onClickNext,
   ...otherProps
 }) {
+  const isAnswered = selectedChoice !== null;
   return (
-    <div>
+    <div className="quiz">
       <p>{currentScore} / {maxScore}</p>
-      <QuizQuestion {...otherProps} />
+      <QuizQuestion selectedChoice={selectedChoice} {...otherProps} />
+      <div className="quiz-continue">
+        <Button disabled={!isAnswered} onClick={onClickNext} variant="primary">Next</Button>
+      </div>
     </div>
   );
 }
@@ -64,7 +66,7 @@ export default function QuizLoader({
 }) {
   if (!isStarted) {
     return (
-      <div>
+      <div className="quiz">
         <h1>{title}</h1>
         <p>{description}</p>
         <Button onClick={onClickStartQuiz}>Start quiz</Button>
