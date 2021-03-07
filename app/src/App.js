@@ -1,12 +1,12 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './App.css';
-import CountryFlagQuiz from './CountryFlagQuiz.jsx';
+import WorldFlagsQuiz from './WorldFlagsQuiz.jsx';
 
 function App() {
   return (
     <div className="App">
-      <CountryFlagQuiz />
+      <WorldFlagsQuiz />
     </div>
   );
 }

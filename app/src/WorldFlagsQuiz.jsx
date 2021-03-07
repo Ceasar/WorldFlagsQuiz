@@ -73,7 +73,7 @@ function quizReducer(state, action) {
   };
 }
 
-export default function CountryFlagQuiz() {
+export default function WorldFlagsQuiz() {
   const [state, dispatch] = useReducer(quizReducer, {
     choice: null,
     isStarted: false,
@@ -115,14 +115,14 @@ export default function CountryFlagQuiz() {
       choices={state.question.choices}
       correctChoice={state.question.answer}
       currentScore={state.score.currentScore}
-      description="Test your knowledge of the flags of the world."
+      description="Test your knowledge of world flags."
       error={error}
       isStarted={state.isStarted}
       loading={loading}
       maxScore={state.score.maxScore}
       selectedChoice={state.selectedChoice}
       stem={state.question.stem}
-      title="World Flag Quiz"
+      title="World Flags Quiz"
       onClickAnswer={onClickAnswer}
       onClickNext={onClickNext}
       onClickStartQuiz={onClickStartQuiz}
