@@ -35,8 +35,8 @@ function QuizQuestion(props) {
   const isChoiceMade = chosenAnswer !== null;
   return (
     <div className="quiz">
-      <h2>{props.question}</h2>
-      <div>
+      <div className="quiz-question">{props.question}</div>
+      <div className="quiz-answers">
         {props.choices.map(choice => {
           return (
             <Button
@@ -84,6 +84,7 @@ function QuizApp({countries, numChoices}) {
     />
   ) : (
     <div>
+      <h1>World Flag Quiz</h1>
       <p>Test your knowledge of the flags of the world.</p>
       <Button onClick={onClickStartQuiz}>Start quiz</Button>
     </div>
@@ -95,9 +96,6 @@ export default function CountryFlagQuiz() {
   return (loading || error) ? (
     <p>{error ? error.message : 'Loading...'}</p>
   ) : (
-    <div>
-      <h1>World Flag Quiz</h1>
-      <QuizApp countries={data.countries} numChoices={4} />
-    </div>
+    <QuizApp countries={data.countries} numChoices={4} />
   );
 }
