@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, {useCallback, useState} from 'react';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ListGroup from 'react-bootstrap/ListGroup';
 import {ApolloClient, InMemoryCache, gql, useQuery} from '@apollo/client';
 
 const client = new ApolloClient({
@@ -36,22 +36,23 @@ function QuizQuestion(props) {
   return (
     <div className="quiz">
       <div className="quiz-question">{props.question}</div>
-      <div className="quiz-answers">
+      <ListGroup className="quiz-answers">
         {props.choices.map(choice => {
           return (
-            <Button
+            <ListGroup.Item
+              action
               key={choice.key}
               disabled={isChoiceMade}
-              variant={chosenAnswer === choice.value ? (isCorrectAnswer ? "success" : "danger") : "primary"}
+              variant={chosenAnswer === choice.value ? (isCorrectAnswer ? "success" : "danger") : null}
               value={choice.value}
               onClick={onClick}
-            >{choice.value}</Button>
+            >{choice.value}</ListGroup.Item>
           );
         })}
-      </div>
+      </ListGroup>
       {isChoiceMade && (
-        <div>
-          <Button onClick={onClickNext} variant="secondary">Next</Button>
+        <div className="quiz-continue">
+          <Button onClick={onClickNext} variant="primary">Next</Button>
         </div>
       )}
     </div>

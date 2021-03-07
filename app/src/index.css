@@ -22,3 +22,7 @@ code {
 .quiz-question {
     font-size: 10rem;
 }
+
+.quiz-continue {
+    margin-top: 1em;
+}
