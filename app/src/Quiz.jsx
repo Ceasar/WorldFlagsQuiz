@@ -33,11 +33,9 @@ function QuizQuestion({
           );
         })}
       </ListGroup>
-      {isAnswered && (
-        <div className="quiz-continue">
-          <Button onClick={onClickNext} variant="primary">Next</Button>
-        </div>
-      )}
+      <div className="quiz-continue">
+        <Button disabled={!isAnswered} onClick={onClickNext} variant="primary">Next</Button>
+      </div>
     </div>
   );
 }
