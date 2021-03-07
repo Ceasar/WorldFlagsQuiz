@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useReducer, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {ApolloClient, InMemoryCache, gql, useQuery} from '@apollo/client';
@@ -19,6 +19,28 @@ const LIST_COUNTRIES = gql`
   }
 `;
 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+    case 'nextQuestion':
+      const countryChoices = _.sampleSize(action.countries, action.numChoices);
+      const correctChoice = _.sample(countryChoices)
+      const question = correctChoice.emoji;
+      const choices = countryChoices.map(country => ({
+        key: country.code,
+        value: country.name,
+      }));
+      const answer = correctChoice.name;
+      return {
+        answer,
+        choices,
+        question,
+      }
+    default:
+      throw new Error();
+  }
+}
+
 function QuizQuestion(props) {
   const [chosenAnswer, setChosenAnswer] = useState(null);
   const [buttonStates, setButtonStates] = useState({});
@@ -27,9 +49,9 @@ function QuizQuestion(props) {
     setChosenAnswer(value);
     let nextButtonStates = {};
     nextButtonStates[value] = "danger";
-    nextButtonStates[props.correctValue] = "success";
+    nextButtonStates[props.answer] = "success";
     setButtonStates(nextButtonStates);
-  }, [props.correctValue]);
+  }, [props.answer]);
   const onClickNext = useCallback(() => {
     setChosenAnswer(null);
     setButtonStates({});
@@ -65,26 +87,19 @@ function QuizQuestion(props) {
 
 function QuizApp({countries, numChoices}) {
   const [isQuizStarted, setIsQuizStarted] = useState(false);
-  const [countryChoices, setCountryChoices] = useState([]);
-  const [answer, setAnswer] = useState(null);
-  const choices = countryChoices.map(country => ({
-    key: country.code,
-    value: country.name,
-  }));
+  const [quizQuestion, dispatch] = useReducer(reducer, {});
   const onClickNext = useCallback(() => {
-    const countryChoices = _.sampleSize(countries, numChoices);
-    setCountryChoices(countryChoices);
-    setAnswer(_.sample(countryChoices));
+    dispatch({type: 'nextQuestion', countries, numChoices});
   }, [countries, numChoices]);
   const onClickStartQuiz = useCallback(() => {
     setIsQuizStarted(true);
-    onClickNext();
-  }, [onClickNext]);
+    dispatch({type: 'startQuiz', countries, numChoices});
+  }, [countries, numChoices, onClickNext]);
   return (isQuizStarted ? (
     <QuizQuestion
-      question={answer.emoji}
-      choices={choices}
-      correctValue={answer.name}
+      question={quizQuestion.question}
+      choices={quizQuestion.choices}
+      answer={quizQuestion.answer}
       onClickNext={onClickNext}
     />
   ) : (
