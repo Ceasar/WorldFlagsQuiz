@@ -19,17 +19,22 @@ const LIST_COUNTRIES = gql`
   }
 `;
 
-// TODO: Use a hash to track button states
 function QuizQuestion(props) {
   const [chosenAnswer, setChosenAnswer] = useState(null);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState(null);
+  const [buttonStates, setButtonStates] = useState({});
   const onClick = useCallback((event) => {
     const value = event.target.value;
     setChosenAnswer(value);
     setIsCorrectAnswer(props.correctValue === value);
+    let nextButtonStates = {};
+    nextButtonStates[value] = "danger";
+    nextButtonStates[props.correctValue] = "success";
+    setButtonStates(nextButtonStates);
   }, [props.correctValue]);
   const onClickNext = useCallback(() => {
     setChosenAnswer(null);
+    setButtonStates({});
     props.onClickNext();
   }, []);
   const isChoiceMade = chosenAnswer !== null;
@@ -38,12 +43,13 @@ function QuizQuestion(props) {
       <div className="quiz-question">{props.question}</div>
       <ListGroup className="quiz-answers">
         {props.choices.map(choice => {
+          const variant = buttonStates[choice.value];
+          console.log(variant);
           return (
             <ListGroup.Item
-              action
+              action={!isChoiceMade}
               key={choice.key}
-              disabled={isChoiceMade}
-              variant={chosenAnswer === choice.value ? (isCorrectAnswer ? "success" : "danger") : null}
+              variant={variant}
               value={choice.value}
               onClick={onClick}
             >{choice.value}</ListGroup.Item>
