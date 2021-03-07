@@ -11,6 +11,7 @@
 
 .quiz-question-stem {
     font-size: 10rem;
+    line-height: normal;
 }
 
 .quiz-continue {

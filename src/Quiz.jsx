@@ -46,7 +46,7 @@ function Quiz({
   const isAnswered = selectedChoice !== null;
   return (
     <div className="quiz">
-      <p>{currentScore} / {maxScore}</p>
+      <div>{currentScore} / {maxScore}</div>
       <QuizQuestion selectedChoice={selectedChoice} {...otherProps} />
       <div className="quiz-continue">
         <Button disabled={!isAnswered} onClick={onClickNext} variant="primary">Next</Button>
