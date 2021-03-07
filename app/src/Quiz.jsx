@@ -41,30 +41,14 @@ function QuizQuestion({
 }
 
 function Quiz({
-  choices,
-  correctChoice,
   currentScore,
-  description,
-  isStarted,
   maxScore,
-  selectedChoice,
-  stem,
-  title,
-  onClickAnswer,
-  onClickNext,
-  onClickStartQuiz,
+  ...otherProps
 }) {
   return (
     <div>
       <p>{currentScore} / {maxScore}</p>
-      <QuizQuestion
-        choices={choices}
-        correctChoice={correctChoice}
-        selectedChoice={selectedChoice}
-        stem={stem}
-        onClickAnswer={onClickAnswer}
-        onClickNext={onClickNext}
-      />
+      <QuizQuestion {...otherProps} />
     </div>
   );
 }
