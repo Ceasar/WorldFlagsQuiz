@@ -110,15 +110,15 @@ export default function CountryFlagQuiz() {
     dispatch({type: 'startQuiz', question: getNextQuestion(data.countries)});
   }, [data, dispatch]);
 
-  return (loading || error) ? (
-    <p>{error ? error.message : 'Loading...'}</p>
-  ) : (
+  return (
     <Quiz
       choices={state.question.choices}
       correctChoice={state.question.answer}
       currentScore={state.score.currentScore}
       description="Test your knowledge of the flags of the world."
+      error={error}
       isStarted={state.isStarted}
+      loading={loading}
       maxScore={state.score.maxScore}
       selectedChoice={state.selectedChoice}
       stem={state.question.stem}

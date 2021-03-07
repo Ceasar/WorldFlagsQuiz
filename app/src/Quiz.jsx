@@ -42,7 +42,7 @@ function QuizQuestion({
   );
 }
 
-export default function Quiz({
+function Quiz({
   choices,
   correctChoice,
   currentScore,
@@ -56,7 +56,7 @@ export default function Quiz({
   onClickNext,
   onClickStartQuiz,
 }) {
-  return (isStarted ? (
+  return (
     <div>
       <p>{currentScore} / {maxScore}</p>
       <QuizQuestion
@@ -68,11 +68,34 @@ export default function Quiz({
         onClickNext={onClickNext}
       />
     </div>
-  ) : (
-    <div>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <Button onClick={onClickStartQuiz}>Start quiz</Button>
-    </div>
-  ));
+  );
+}
+
+export default function QuizLoader({
+  description,
+  errorMessage,
+  isStarted,
+  loading,
+  title,
+  onClickStartQuiz,
+  ...otherProps
+}) {
+  if (!isStarted) {
+    return (
+      <div>
+        <h1>{title}</h1>
+        <p>{description}</p>
+        <Button onClick={onClickStartQuiz}>Start quiz</Button>
+      </div>
+    );
+  }
+  if (loading) {
+    return 'Loading...';
+  }
+  if (errorMessage) {
+    return errorMessage;
+  }
+  return (
+    <Quiz {...otherProps}/>
+  );
 }
