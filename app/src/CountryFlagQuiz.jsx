@@ -21,12 +21,10 @@ const LIST_COUNTRIES = gql`
 
 function QuizQuestion(props) {
   const [chosenAnswer, setChosenAnswer] = useState(null);
-  const [isCorrectAnswer, setIsCorrectAnswer] = useState(null);
   const [buttonStates, setButtonStates] = useState({});
   const onClick = useCallback((event) => {
     const value = event.target.value;
     setChosenAnswer(value);
-    setIsCorrectAnswer(props.correctValue === value);
     let nextButtonStates = {};
     nextButtonStates[value] = "danger";
     nextButtonStates[props.correctValue] = "success";
@@ -36,7 +34,7 @@ function QuizQuestion(props) {
     setChosenAnswer(null);
     setButtonStates({});
     props.onClickNext();
-  }, []);
+  }, [props.onClickNext]);
   const isChoiceMade = chosenAnswer !== null;
   return (
     <div className="quiz">
@@ -77,11 +75,11 @@ function QuizApp({countries, numChoices}) {
     const countryChoices = _.sampleSize(countries, numChoices);
     setCountryChoices(countryChoices);
     setAnswer(_.sample(countryChoices));
-  }, []);
+  }, [countries, numChoices]);
   const onClickStartQuiz = useCallback(() => {
     setIsQuizStarted(true);
     onClickNext();
-  });
+  }, [onClickNext]);
   return (isQuizStarted ? (
     <QuizQuestion
       question={answer.emoji}
