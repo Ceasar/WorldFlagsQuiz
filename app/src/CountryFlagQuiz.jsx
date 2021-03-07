@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, {useCallback, useReducer, useState} from 'react';
+import React, {useCallback, useReducer} from 'react';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {ApolloClient, InMemoryCache, gql, useQuery} from '@apollo/client';
@@ -19,62 +19,93 @@ const LIST_COUNTRIES = gql`
   }
 `;
 
-function reducer(state, action) {
+function questionReducer(state, action) {
   switch (action.type) {
     case 'startQuiz':
     case 'nextQuestion':
-      const countryChoices = _.sampleSize(action.countries, action.numChoices);
-      const correctChoice = _.sample(countryChoices)
-      const question = correctChoice.emoji;
-      const choices = countryChoices.map(country => ({
-        key: country.code,
-        value: country.name,
-      }));
-      const answer = correctChoice.name;
-      return {
-        answer,
-        choices,
-        question,
-      }
+      return action.question;
     default:
-      throw new Error();
+      return state;
   }
 }
 
-function QuizQuestion(props) {
-  const [chosenAnswer, setChosenAnswer] = useState(null);
-  const [buttonStates, setButtonStates] = useState({});
-  const onClick = useCallback((event) => {
-    const value = event.target.value;
-    setChosenAnswer(value);
-    let nextButtonStates = {};
-    nextButtonStates[value] = "danger";
-    nextButtonStates[props.answer] = "success";
-    setButtonStates(nextButtonStates);
-  }, [props.answer]);
-  const onClickNext = useCallback(() => {
-    setChosenAnswer(null);
-    setButtonStates({});
-    props.onClickNext();
-  }, [props.onClickNext]);
-  const isChoiceMade = chosenAnswer !== null;
+function scoreReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return {currentScore: 0, maxScore: 0}
+    case 'chooseAnswer':
+      return {
+        currentScore: state.currentScore + (action.isCorrect ? 1 : 0),
+        maxScore: state.maxScore + 1,
+      };
+    default:
+      return state;
+  }
+}
+
+function selectedChoiceReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+    case 'nextQuestion':
+      return null;
+    case 'chooseAnswer':
+      return action.choice
+    default:
+      return state
+  }
+}
+
+function isStartedReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return true;
+    default:
+      return state;
+  }
+}
+
+function quizReducer(state, action) {
+  return {
+    isStarted: isStartedReducer(state.isStarted, action),
+    question: questionReducer(state.question, action),
+    score: scoreReducer(state.score, action),
+    selectedChoice: selectedChoiceReducer(state.choice, action),
+  };
+}
+
+function QuizQuestion({
+  choices,
+  correctChoice,
+  selectedChoice,
+  stem,
+  onClickAnswer,
+  onClickNext
+}) {
+  const isAnswered = selectedChoice !== null;
   return (
     <div className="quiz">
-      <div className="quiz-question">{props.question}</div>
+      <div className="quiz-question">{stem}</div>
       <ListGroup className="quiz-answers">
-        {props.choices.map(choice => {
+        {choices.map(choice => {
+          let variant = null;
+          if (choice.value === selectedChoice) {
+            variant = "danger";
+          }
+          if (isAnswered && choice.value === correctChoice) {
+            variant = "success";
+          }
           return (
             <ListGroup.Item
-              action={!isChoiceMade}
+              action={!isAnswered}
               key={choice.key}
-              variant={buttonStates[choice.value]}
+              variant={variant}
               value={choice.value}
-              onClick={onClick}
+              onClick={onClickAnswer}
             >{choice.value}</ListGroup.Item>
           );
         })}
       </ListGroup>
-      {isChoiceMade && (
+      {isAnswered && (
         <div className="quiz-continue">
           <Button onClick={onClickNext} variant="primary">Next</Button>
         </div>
@@ -83,37 +114,95 @@ function QuizQuestion(props) {
   );
 }
 
-function QuizApp({countries, numChoices}) {
-  const [isQuizStarted, setIsQuizStarted] = useState(false);
-  const [quizQuestion, dispatch] = useReducer(reducer, {});
-  const onClickNext = useCallback(() => {
-    dispatch({type: 'nextQuestion', countries, numChoices});
-  }, [countries, numChoices]);
-  const onClickStartQuiz = useCallback(() => {
-    setIsQuizStarted(true);
-    dispatch({type: 'startQuiz', countries, numChoices});
-  }, [countries, numChoices, onClickNext]);
-  return (isQuizStarted ? (
-    <QuizQuestion
-      question={quizQuestion.question}
-      choices={quizQuestion.choices}
-      answer={quizQuestion.answer}
-      onClickNext={onClickNext}
-    />
+function QuizApp({
+  choices,
+  correctChoice,
+  currentScore,
+  description,
+  isStarted,
+  maxScore,
+  selectedChoice,
+  stem,
+  title,
+  onClickAnswer,
+  onClickNext,
+  onClickStartQuiz,
+}) {
+  return (isStarted ? (
+    <div>
+      <p>{currentScore} / {maxScore}</p>
+      <QuizQuestion
+        choices={choices}
+        correctChoice={correctChoice}
+        selectedChoice={selectedChoice}
+        stem={stem}
+        onClickAnswer={onClickAnswer}
+        onClickNext={onClickNext}
+      />
+    </div>
   ) : (
     <div>
-      <h1>World Flag Quiz</h1>
-      <p>Test your knowledge of the flags of the world.</p>
+      <h1>{title}</h1>
+      <p>{description}</p>
       <Button onClick={onClickStartQuiz}>Start quiz</Button>
     </div>
   ));
 }
 
 export default function CountryFlagQuiz() {
+  const [state, dispatch] = useReducer(quizReducer, {
+    choice: null,
+    isStarted: false,
+    question: {},
+    score: {current: 0, maxScore: 0},
+  });
   const {data, loading, error} = useQuery(LIST_COUNTRIES, {client});
+
+  const getNextQuestion = function(countries) {
+    const countryChoices = _.sampleSize(countries, 4);
+    const correctChoice = _.sample(countryChoices)
+    const answer = correctChoice.name;
+    const choices = countryChoices.map(country => ({
+      key: country.code,
+      value: country.name,
+    }));
+    const stem = correctChoice.emoji;
+    return {answer, choices, stem}
+  };
+
+  const onClickAnswer = useCallback((event) => {
+    const choice = event.target.value;
+    dispatch({
+      choice,
+      correctChoice: state.question.answer,
+      isCorrect: choice === state.question.answer,
+      type: 'chooseAnswer',
+    });
+  }, [dispatch, state]);
+  const onClickNext = useCallback(() => {
+    dispatch({type: 'nextQuestion', question: getNextQuestion(data.countries)});
+  }, [data, dispatch]);
+  const onClickStartQuiz = useCallback(() => {
+    dispatch({type: 'startQuiz', question: getNextQuestion(data.countries)});
+  }, [data, dispatch]);
+
   return (loading || error) ? (
     <p>{error ? error.message : 'Loading...'}</p>
   ) : (
-    <QuizApp countries={data.countries} numChoices={4} />
-  );
+    <QuizApp
+      buttonStates={state.buttonStates}
+      choices={state.question.choices}
+      correctChoice={state.question.answer}
+      currentScore={state.score.currentScore}
+      description="Test your knowledge of the flags of the world."
+      isStarted={state.isStarted}
+      maxScore={state.score.maxScore}
+      selectedChoice={state.selectedChoice}
+      stem={state.question.stem}
+      title="World Flag Quiz"
+      onClickAnswer={onClickAnswer}
+      onClickNext={onClickNext}
+      onClickStartQuiz={onClickStartQuiz}
+    />
+  )
 }
