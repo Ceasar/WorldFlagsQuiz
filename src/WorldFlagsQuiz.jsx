@@ -81,10 +81,12 @@ function quizReducer(state, action) {
   };
 }
 
-function makeQuestions(countries) {
+function makeQuestions(countries, numChoices) {
   return _.shuffle(countries).map(country => {
     const answer = country.name;
-    const distractors = _.sampleSize(countries, 3);
+    const distractors = _.sampleSize(countries, numChoices).filter(
+      country => country.name !== answer
+    ).slice(0, numChoices - 1);
     const choices = _.shuffle(distractors.concat(country).map(country => ({
       key: country.code,
       value: country.name,
@@ -120,7 +122,7 @@ export default function WorldFlagsQuiz() {
     dispatch({type: 'nextQuestion'});
   }, [dispatch]);
   const onClickStartQuiz = useCallback(() => {
-    const questions = data ? makeQuestions(data.countries) : [];
+    const questions = data ? makeQuestions(data.countries, 4) : [];
     dispatch({type: 'startQuiz', questions});
   }, [data, dispatch]);
 
