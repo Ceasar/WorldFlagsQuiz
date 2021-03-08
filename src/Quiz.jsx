@@ -8,7 +8,6 @@ function QuizQuestion({
   stem,
   onClickAnswer,
 }) {
-  console.log(answer);
   const isAnswered = selectedChoice !== null;
   return (
     <div className="quiz-question">
