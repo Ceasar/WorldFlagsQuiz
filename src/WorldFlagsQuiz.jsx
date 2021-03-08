@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, {useCallback, useReducer} from 'react';
+import React, {useCallback, useMemo, useReducer} from 'react';
 import {ApolloClient, InMemoryCache, gql, useQuery} from '@apollo/client';
 
 import Quiz from './Quiz.jsx';
@@ -19,11 +19,21 @@ const LIST_COUNTRIES = gql`
   }
 `;
 
-function questionReducer(state, action) {
+function questionNumberReducer(state, action) {
   switch (action.type) {
     case 'startQuiz':
+      return 0;
     case 'nextQuestion':
-      return action.question;
+      return state + 1;
+    default:
+      return state;
+  }
+}
+
+function questionsReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return action.questions;
     default:
       return state;
   }
@@ -32,12 +42,9 @@ function questionReducer(state, action) {
 function scoreReducer(state, action) {
   switch (action.type) {
     case 'startQuiz':
-      return {currentScore: 0, maxScore: 0}
+      return 0;
     case 'chooseAnswer':
-      return {
-        currentScore: state.currentScore + (action.isCorrect ? 1 : 0),
-        maxScore: state.maxScore + 1,
-      };
+      return state + (action.isCorrect ? 1 : 0);
     default:
       return state;
   }
@@ -67,65 +74,74 @@ function isStartedReducer(state, action) {
 function quizReducer(state, action) {
   return {
     isStarted: isStartedReducer(state.isStarted, action),
-    question: questionReducer(state.question, action),
+    questionNumber: questionNumberReducer(state.questionNumber, action),
+    questions: questionsReducer(state.questions, action),
     score: scoreReducer(state.score, action),
     selectedChoice: selectedChoiceReducer(state.choice, action),
   };
+}
+
+function makeQuestions(countries) {
+  return _.shuffle(countries).map(country => {
+    const answer = country.name;
+    const distractors = _.sampleSize(countries, 3);
+    const choices = _.shuffle(distractors.concat(country).map(country => ({
+      key: country.code,
+      value: country.name,
+    })));
+    const stem = country.emoji;
+    return {answer, choices, stem}
+  });
 }
 
 export default function WorldFlagsQuiz() {
   const [state, dispatch] = useReducer(quizReducer, {
     choice: null,
     isStarted: false,
-    question: {},
-    score: {current: 0, maxScore: 0},
+    question: 0,
+    questions: [],
+    score: 0,
   });
   const {data, loading, error} = useQuery(LIST_COUNTRIES, {client});
 
-  const getNextQuestion = function(countries) {
-    const countryChoices = _.sampleSize(countries, 4);
-    const correctChoice = _.sample(countryChoices)
-    const answer = correctChoice.name;
-    const choices = countryChoices.map(country => ({
-      key: country.code,
-      value: country.name,
-    }));
-    const stem = correctChoice.emoji;
-    return {answer, choices, stem}
-  };
+  const question = useMemo((
+    () => (state.questions[state.questionNumber] || {})
+  ), [state.questions, state.questionNumber]);
 
   const onClickAnswer = useCallback((event) => {
     const choice = event.target.value;
     dispatch({
       choice,
-      correctChoice: state.question.answer,
-      isCorrect: choice === state.question.answer,
+      isCorrect: choice === question.answer,
       type: 'chooseAnswer',
     });
-  }, [dispatch, state]);
+  }, [dispatch, question]);
   const onClickNext = useCallback(() => {
-    dispatch({type: 'nextQuestion', question: getNextQuestion(data.countries)});
-  }, [data, dispatch]);
+    dispatch({type: 'nextQuestion'});
+  }, [dispatch]);
   const onClickStartQuiz = useCallback(() => {
-    dispatch({type: 'startQuiz', question: getNextQuestion(data.countries)});
+    const questions = data ? makeQuestions(data.countries) : [];
+    dispatch({type: 'startQuiz', questions});
   }, [data, dispatch]);
 
   return (
     <Quiz
-      choices={state.question.choices}
-      correctChoice={state.question.answer}
-      currentScore={state.score.currentScore}
+      answer={question.answer}
+      choices={question.choices}
       description="Test your knowledge of world flags."
       error={error}
+      isComplete={state.questionNumber >= state.questions.length}
       isStarted={state.isStarted}
       loading={loading}
-      maxScore={state.score.maxScore}
+      questionNumber={state.questionNumber}
       selectedChoice={state.selectedChoice}
-      stem={state.question.stem}
+      score={state.score}
+      stem={question.stem}
       title="World Flags Quiz"
+      totalQuestions={state.questions.length}
       onClickAnswer={onClickAnswer}
       onClickNext={onClickNext}
       onClickStartQuiz={onClickStartQuiz}
     />
-  )
+  );
 }

@@ -2,12 +2,13 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 function QuizQuestion({
+  answer,
   choices,
-  correctChoice,
   selectedChoice,
   stem,
   onClickAnswer,
 }) {
+  console.log(answer);
   const isAnswered = selectedChoice !== null;
   return (
     <div className="quiz-question">
@@ -18,7 +19,7 @@ function QuizQuestion({
           if (choice.value === selectedChoice) {
             variant = "danger";
           }
-          if (isAnswered && choice.value === correctChoice) {
+          if (isAnswered && choice.value === answer) {
             variant = "success";
           }
           return (
@@ -37,16 +38,18 @@ function QuizQuestion({
 }
 
 function Quiz({
-  currentScore,
+  questionNumber,
   selectedChoice,
-  maxScore,
+  score,
+  totalQuestions,
   onClickNext,
   ...otherProps
 }) {
   const isAnswered = selectedChoice !== null;
   return (
     <div className="quiz">
-      <div>{currentScore} / {maxScore}</div>
+      <div className="quiz-question-number">Question: {questionNumber + 1} / {totalQuestions}</div>
+      <div>Score: {score}</div>
       <QuizQuestion selectedChoice={selectedChoice} {...otherProps} />
       <div className="quiz-continue">
         <Button disabled={!isAnswered} onClick={onClickNext} variant="primary">Next</Button>
@@ -58,9 +61,12 @@ function Quiz({
 export default function QuizLoader({
   description,
   errorMessage,
+  isComplete,
   isStarted,
   loading,
+  score,
   title,
+  totalQuestions,
   onClickStartQuiz,
   ...otherProps
 }) {
@@ -76,6 +82,15 @@ export default function QuizLoader({
       </div>
     );
   }
+  if (isComplete) {
+    return (
+      <div className="quiz">
+        <h1>Quiz Complete!</h1>
+        <p>Final Score: {score} / {totalQuestions}</p>
+        <Button onClick={onClickStartQuiz}>Play again</Button>
+      </div>
+    );
+  }
   if (loading) {
     return 'Loading...';
   }
@@ -83,6 +98,6 @@ export default function QuizLoader({
     return errorMessage;
   }
   return (
-    <Quiz {...otherProps}/>
+    <Quiz score={score} totalQuestions={totalQuestions} {...otherProps}/>
   );
 }
