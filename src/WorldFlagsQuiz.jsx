@@ -14,7 +14,6 @@ const LIST_COUNTRIES = gql`
     countries {
       name
       emoji
-      code
     }
   }
 `;
@@ -22,13 +21,12 @@ const LIST_COUNTRIES = gql`
 function makeQuestions(countries, numChoices) {
   return _.shuffle(countries).map(country => {
     const answer = country.name;
-    const distractors = _.sampleSize(countries, numChoices).filter(
-      country => country.name !== answer
+    const distractors = _.sampleSize(countries, numChoices).map(
+      country => country.name
+    ).filter(
+      countryName => countryName !== answer
     ).slice(0, numChoices - 1);
-    const choices = _.shuffle(distractors.concat(country).map(country => ({
-      key: country.code,
-      value: country.name,
-    })));
+    const choices = _.shuffle(distractors.concat(country.name));
     const stem = country.emoji;
     return {answer, choices, stem}
   });

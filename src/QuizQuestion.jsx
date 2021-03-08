@@ -14,20 +14,20 @@ export default function QuizQuestion({
       <ListGroup className="quiz-answers">
         {choices.map(choice => {
           let variant = null;
-          if (choice.value === selectedChoice) {
+          if (choice === selectedChoice) {
             variant = "danger";
           }
-          if (isAnswered && choice.value === answer) {
+          if (isAnswered && choice === answer) {
             variant = "success";
           }
           return (
             <ListGroup.Item
               action={!isAnswered}
-              key={choice.key}
+              key={choice}
               variant={variant}
-              value={choice.value}
+              value={choice}
               onClick={onClickAnswer}
-            >{choice.value}</ListGroup.Item>
+            >{choice}</ListGroup.Item>
           );
         })}
       </ListGroup>
