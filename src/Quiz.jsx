@@ -1,3 +1,4 @@
+import React, {useCallback, useMemo, useReducer} from 'react';
 import Button from 'react-bootstrap/Button';
 
 import QuizPage from './QuizPage.jsx';
@@ -37,7 +38,7 @@ function QuizResults({
   );
 }
 
-export default function Quiz({
+export function Quiz({
   description,
   isComplete,
   isStarted,
@@ -68,5 +69,110 @@ export default function Quiz({
   }
   return (
     <QuizPage score={score} totalQuestions={totalQuestions} {...otherProps}/>
+  );
+}
+
+function questionNumberReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return 0;
+    case 'nextQuestion':
+      return state + 1;
+    default:
+      return state;
+  }
+}
+
+function scoreReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return 0;
+    case 'chooseAnswer':
+      return state + (action.isCorrect ? 1 : 0);
+    default:
+      return state;
+  }
+}
+
+function selectedChoiceReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+    case 'nextQuestion':
+      return null;
+    case 'chooseAnswer':
+      return action.choice
+    default:
+      return state
+  }
+}
+
+function isStartedReducer(state, action) {
+  switch (action.type) {
+    case 'startQuiz':
+      return true;
+    default:
+      return state;
+  }
+}
+
+function quizReducer(state, action) {
+  return {
+    isStarted: isStartedReducer(state.isStarted, action),
+    questionNumber: questionNumberReducer(state.questionNumber, action),
+    score: scoreReducer(state.score, action),
+    selectedChoice: selectedChoiceReducer(state.choice, action),
+  };
+}
+
+const QUIZ_INITIAL_STATE = {
+  isStarted: false,
+  questionNumber: 0,
+  score: 0,
+  selectedChoice: null,
+};
+
+export default function QuizApp({
+  description,
+  questions,
+  title,
+}) {
+  const [state, dispatch] = useReducer(quizReducer, QUIZ_INITIAL_STATE);
+
+  const question = useMemo((
+    () => (questions[state.questionNumber] || {})
+  ), [questions, state.questionNumber]);
+
+  const onClickAnswer = useCallback((event) => {
+    const choice = event.target.value;
+    dispatch({
+      choice,
+      isCorrect: choice === question.answer,
+      type: 'chooseAnswer',
+    });
+  }, [dispatch, question]);
+  const onClickNext = useCallback(() => {
+    dispatch({type: 'nextQuestion'});
+  }, [dispatch]);
+  const onClickStartQuiz = useCallback(() => {
+    dispatch({type: 'startQuiz'});
+  }, [dispatch]);
+
+  return (
+    <Quiz
+      answer={question.answer}
+      choices={question.choices}
+      description={description}
+      isComplete={state.questionNumber >= questions.length}
+      isStarted={state.isStarted}
+      questionNumber={state.questionNumber}
+      selectedChoice={state.selectedChoice}
+      score={state.score}
+      stem={question.stem}
+      title={title}
+      totalQuestions={questions.length}
+      onClickAnswer={onClickAnswer}
+      onClickNext={onClickNext}
+      onClickStartQuiz={onClickStartQuiz}
+    />
   );
 }
