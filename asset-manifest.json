@@ -1,25 +1,25 @@
 {
   "files": {
     "main.css": "/WorldFlagsQuiz/static/css/main.92ff970e.chunk.css",
-    "main.js": "/WorldFlagsQuiz/static/js/main.5b1c846b.chunk.js",
-    "main.js.map": "/WorldFlagsQuiz/static/js/main.5b1c846b.chunk.js.map",
+    "main.js": "/WorldFlagsQuiz/static/js/main.db182991.chunk.js",
+    "main.js.map": "/WorldFlagsQuiz/static/js/main.db182991.chunk.js.map",
     "runtime-main.js": "/WorldFlagsQuiz/static/js/runtime-main.54e05c57.js",
     "runtime-main.js.map": "/WorldFlagsQuiz/static/js/runtime-main.54e05c57.js.map",
     "static/css/2.fabbef47.chunk.css": "/WorldFlagsQuiz/static/css/2.fabbef47.chunk.css",
-    "static/js/2.07c4962c.chunk.js": "/WorldFlagsQuiz/static/js/2.07c4962c.chunk.js",
-    "static/js/2.07c4962c.chunk.js.map": "/WorldFlagsQuiz/static/js/2.07c4962c.chunk.js.map",
+    "static/js/2.6f2e15f9.chunk.js": "/WorldFlagsQuiz/static/js/2.6f2e15f9.chunk.js",
+    "static/js/2.6f2e15f9.chunk.js.map": "/WorldFlagsQuiz/static/js/2.6f2e15f9.chunk.js.map",
     "static/js/3.8672a50c.chunk.js": "/WorldFlagsQuiz/static/js/3.8672a50c.chunk.js",
     "static/js/3.8672a50c.chunk.js.map": "/WorldFlagsQuiz/static/js/3.8672a50c.chunk.js.map",
     "index.html": "/WorldFlagsQuiz/index.html",
     "static/css/2.fabbef47.chunk.css.map": "/WorldFlagsQuiz/static/css/2.fabbef47.chunk.css.map",
     "static/css/main.92ff970e.chunk.css.map": "/WorldFlagsQuiz/static/css/main.92ff970e.chunk.css.map",
-    "static/js/2.07c4962c.chunk.js.LICENSE.txt": "/WorldFlagsQuiz/static/js/2.07c4962c.chunk.js.LICENSE.txt"
+    "static/js/2.6f2e15f9.chunk.js.LICENSE.txt": "/WorldFlagsQuiz/static/js/2.6f2e15f9.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.54e05c57.js",
     "static/css/2.fabbef47.chunk.css",
-    "static/js/2.07c4962c.chunk.js",
+    "static/js/2.6f2e15f9.chunk.js",
     "static/css/main.92ff970e.chunk.css",
-    "static/js/main.5b1c846b.chunk.js"
+    "static/js/main.db182991.chunk.js"
   ]
 }
