@@ -59,10 +59,8 @@ function Quiz({
 
 export default function QuizLoader({
   description,
-  errorMessage,
   isComplete,
   isStarted,
-  loading,
   score,
   title,
   totalQuestions,
@@ -74,7 +72,10 @@ export default function QuizLoader({
       <div className="quiz">
         <h1>{title}</h1>
         <p>{description}</p>
-        <Button disabled={loading} onClick={onClickStartQuiz}>Start quiz</Button>
+        <Button
+          disabled={totalQuestions === 0}
+          onClick={onClickStartQuiz}
+        >Start quiz</Button>
         <div id="github-ribbon">
           <a href="https://github.com/Ceasar/WorldFlagsQuiz"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_white_ffffff.png?resize=149%2C149" className="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"/></a>
         </div>
@@ -89,12 +90,6 @@ export default function QuizLoader({
         <Button onClick={onClickStartQuiz}>Play again</Button>
       </div>
     );
-  }
-  if (loading) {
-    return 'Loading...';
-  }
-  if (errorMessage) {
-    return errorMessage;
   }
   return (
     <Quiz score={score} totalQuestions={totalQuestions} {...otherProps}/>

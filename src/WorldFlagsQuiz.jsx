@@ -126,15 +126,13 @@ export default function WorldFlagsQuiz() {
     dispatch({type: 'startQuiz', questions});
   }, [data, dispatch]);
 
-  return (
+  return error ? error.message : (
     <Quiz
       answer={question.answer}
       choices={question.choices}
       description="Test your knowledge of world flags."
-      error={error}
       isComplete={state.questionNumber >= state.questions.length}
       isStarted={state.isStarted}
-      loading={loading}
       questionNumber={state.questionNumber}
       selectedChoice={state.selectedChoice}
       score={state.score}
