@@ -26,7 +26,7 @@ export default function QuizQuestion({
               key={choice}
               variant={variant}
               value={choice}
-              onClick={onClickAnswer}
+              onClick={!isAnswered && onClickAnswer}
             >{choice}</ListGroup.Item>
           );
         })}
